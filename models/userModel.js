@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     },
     adminRequestStatus: {
       type: String,
-      enum: ["pending", "accepted", "rejected", null],
+      enum: ["pending", "accepted", "rejected"],
       default: null,
     },
     lastLogin: {
