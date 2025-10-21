@@ -104,11 +104,22 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 /* ------------------- FETCH USERS / ADMINS ------------------- */
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({
-    role: { $in: ["user", "admin", "superadmin"] },
-  }).select("-password");
-  res.json(users);
+  try {
+    const users = await User.find({
+      role: { $in: ["user", "admin", "superadmin"] },
+    }).select("-password");
+
+    if (!Array.isArray(users)) {
+      return res.status(500).json({ message: "Users data is not an array" });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
 });
+
 
 const getAllAdmins = asyncHandler(async (req, res) => {
   const admins = await User.find({ role: "admin" }).select("-password");
