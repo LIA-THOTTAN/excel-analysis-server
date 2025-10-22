@@ -13,10 +13,16 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors({
-  origin: "https://excel-analysis-client.vercel.app",  
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "https://excel-analysis-client.vercel.app",
+      "https://excel-analysis-client-syls-8o09ubmyj-lia-thottan-s-projects.vercel.app",
+    ],
+    credentials: true,
+  })
+);
+
 
 // This line is crucial for serving the uploaded files.
 app.use('/uploads', express.static(path.join(__dirname, "uploads")));
