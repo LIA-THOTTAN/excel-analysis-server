@@ -11,25 +11,39 @@ connectDB();
 
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// ✅ Allow multiple trusted origins dynamically
+const allowedOrigins = [
+  "https://excel-analysis-client.vercel.app",
+  "https://excel-analysis-client-syls-8o09ubmyj-lia-thottan-s-projects.vercel.app",
+  "http://localhost:5173", // for local dev
+];
+
 app.use(
   cors({
-    origin: [
-      "https://excel-analysis-client.vercel.app",
-      "https://excel-analysis-client-syls-8o09ubmyj-lia-thottan-s-projects.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ Blocked by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-// This line is crucial for serving the uploaded files.
-app.use('/uploads', express.static(path.join(__dirname, "uploads")));
+// ✅ Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// This line connects the API endpoints to your server.
+// ✅ API routes
 app.use('/api/users', require('./routes/userRoutes'));
 
+// ✅ Error handler middleware
 app.use(errorHandler);
 
-app.listen(port, () => console.log(`Server started on port ${port}`));
+app.listen(port, () => console.log(`✅ Server running on port ${port}`));
