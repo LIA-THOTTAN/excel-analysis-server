@@ -1,4 +1,4 @@
-// controllers/userController.js
+
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const path = require("path");
@@ -145,7 +145,6 @@ const rejectAdmin = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-
   user.role = "user";
   user.adminRequestStatus = "rejected";
   await user.save();
@@ -181,6 +180,28 @@ const unblockUser = asyncHandler(async (req, res) => {
   await user.save();
   res.json({ message: "User unblocked successfully", user });
 });
+
+const revokeAdmin = asyncHandler(async (req, res) => {
+  const { id } = req.params; 
+  const user = await User.findById(id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (user.role !== "admin") {
+    res.status(400);
+    throw new Error("User is not an admin");
+  }
+
+  user.role = "user";
+  user.adminRequestStatus = "rejected";
+  await user.save();
+
+  res.json({ message: "Admin privileges revoked successfully", user });
+});
+
 
 const grantUser = asyncHandler(async (req, res) => {
   const { userId } = req.params;
@@ -229,9 +250,9 @@ const updateProfile = asyncHandler(async (req, res) => {
   res.json({ message: "Profile updated successfully", user: user });
 });
 
-// NEW: rejectUser & unrejectUser - ensure these exist and are exported
+
 const rejectUser = asyncHandler(async (req, res) => {
-  const { id } = req.params; // note: your route uses /reject/:id
+  const { id } = req.params; 
   const user = await User.findById(id);
 
   if (!user) {
@@ -239,7 +260,6 @@ const rejectUser = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  // Only normal users should be rejected (as in your earlier version)
   if (user.role !== "user") {
     res.status(403);
     throw new Error("Only normal users can be rejected");
@@ -251,7 +271,7 @@ const rejectUser = asyncHandler(async (req, res) => {
 });
 
 const unrejectUser = asyncHandler(async (req, res) => {
-  const { id } = req.params; // route uses /unreject/:id
+  const { id } = req.params; 
   const user = await User.findById(id);
 
   if (!user) {
@@ -374,6 +394,7 @@ module.exports = {
   getAllUploadHistory,
   rejectUser,
   unrejectUser,
+  revokeAdmin,
   previewFile,
   deleteFile,
 };

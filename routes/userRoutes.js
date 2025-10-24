@@ -23,6 +23,7 @@ const {
   updateProfile,
   rejectUser,
   unrejectUser,
+  revokeAdmin,
   previewFile,
   deleteFile,
 } = require("../controllers/userController");
@@ -66,6 +67,7 @@ router.put("/approve/:userId", protect, superadmin, approveAdmin);
 router.put("/reject-admin/:userId", protect, superadmin, rejectAdmin);
 router.put("/block/:userId", protect, superadmin, blockUser);
 router.put("/unblock/:userId", protect, superadmin, unblockUser);
+router.put("/revoke-admin/:id", protect, superadmin, revokeAdmin);
 router.put("/grant-admin/:userId", protect, superadmin, grantAdmin);
 router.put("/grant-user/:userId", protect, superadmin, grantUser);
 
