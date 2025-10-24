@@ -1,4 +1,4 @@
-// controllers/userController.js
+
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const path = require("path");
@@ -9,12 +9,12 @@ const User = require("../models/userModel");
 const File = require("../models/fileModel");
 const bcrypt = require("bcryptjs");
 
-/* ------------------- TOKEN GENERATOR ------------------- */
+
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
-/* ------------------- USER REGISTRATION ------------------- */
+
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, requestAdmin } = req.body;
   const userExists = await User.findOne({ email });
@@ -50,7 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-/* ------------------- LOGIN ------------------- */
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -82,7 +82,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-/* ------------------- PROFILE ------------------- */
+
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
   if (user) {
@@ -102,7 +102,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-/* ------------------- FETCH USERS / ADMINS ------------------- */
+
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const users = await User.find({
@@ -140,7 +140,7 @@ const getRejectedAdmins = asyncHandler(async (req, res) => {
   res.json(rejectedAdmins);
 });
 
-/* ------------------- ADMIN MANAGEMENT ------------------- */
+
 const approveAdmin = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   const user = await User.findById(userId);
@@ -169,7 +169,7 @@ const rejectAdmin = asyncHandler(async (req, res) => {
   res.json({ message: "Admin request rejected successfully", user });
 });
 
-/* ------------------- SUPERADMIN: BLOCK / UNBLOCK USERS ------------------- */
+
 const blockUser = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   const user = await User.findById(userId);
@@ -206,7 +206,7 @@ const unblockUser = asyncHandler(async (req, res) => {
   res.json({ message: "User unblocked successfully", user });
 });
 
-/* ------------------- ADMIN: REJECT / UNREJECT NORMAL USERS ------------------- */
+
 const rejectUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id);
@@ -245,7 +245,7 @@ const unrejectUser = asyncHandler(async (req, res) => {
   res.json({ message: "User moved back to normal users", user });
 });
 
-/* ------------------- ROLE GRANTS ------------------- */
+
 const grantUser = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   const user = await User.findById(userId);
@@ -279,7 +279,7 @@ const grantAdmin = asyncHandler(async (req, res) => {
   res.json({ message: "Admin role granted successfully", user });
 });
 
-/* ------------------- PROFILE UPDATES ------------------- */
+
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   const user = await User.findById(req.user.id);
@@ -303,7 +303,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   });
 });
 
-/* ------------------- FILE UPLOADS ------------------- */
+
 const uploadFile = asyncHandler(async (req, res) => {
   if (!req.file) {
     res.status(400);
@@ -312,10 +312,10 @@ const uploadFile = asyncHandler(async (req, res) => {
 
   const uploadedBy = req.user.id;
 
-  // Save record in MongoDB
+
   const newFile = await File.create({
     fileName: req.file.originalname,
-    filePath: req.file.path, // multer sets this (e.g., "uploads/16789123.xlsx")
+    filePath: req.file.path, 
     fileSize: req.file.size,
     uploadedBy,
   });
@@ -342,11 +342,7 @@ const getAllUploadHistory = asyncHandler(async (req, res) => {
   res.json(files);
 });
 
-/* ------------------- NEW: PREVIEW FILE ------------------- */
-/* 
-   Permission: uploader OR admin OR superadmin
-   Returns: JSON array converted from first sheet
-*/
+
 const previewFile = asyncHandler(async (req, res) => {
   const file = await File.findById(req.params.id).populate("uploadedBy", "name email role");
   if (!file) {
@@ -354,7 +350,7 @@ const previewFile = asyncHandler(async (req, res) => {
     throw new Error("File not found");
   }
 
-  // permission check: uploader or admin/superadmin
+  
   const me = req.user;
   const isUploader = file.uploadedBy && file.uploadedBy._id.toString() === me.id;
   const isAdmin = me.role === "admin" || me.role === "superadmin";
@@ -363,7 +359,7 @@ const previewFile = asyncHandler(async (req, res) => {
     throw new Error("Not authorized to preview this file");
   }
 
-  // Resolve absolute path to file
+ 
   const absolutePath = path.isAbsolute(file.filePath)
     ? file.filePath
     : path.join(process.cwd(), file.filePath);
@@ -373,7 +369,7 @@ const previewFile = asyncHandler(async (req, res) => {
     throw new Error("File not found on server filesystem");
   }
 
-  // Read workbook & convert first sheet to JSON
+
   const workbook = xlsx.readFile(absolutePath, { raw: false });
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
@@ -382,11 +378,7 @@ const previewFile = asyncHandler(async (req, res) => {
   res.json({ fileName: file.fileName, data });
 });
 
-/* ------------------- NEW: DELETE FILE ------------------- */
-/*
-   Permission: uploader OR admin OR superadmin
-   Removes DB record and physical file (if exists)
-*/
+
 const deleteFile = asyncHandler(async (req, res) => {
   const file = await File.findById(req.params.id).populate("uploadedBy", "name email role");
   if (!file) {
@@ -394,7 +386,7 @@ const deleteFile = asyncHandler(async (req, res) => {
     throw new Error("File not found");
   }
 
-  // permission check: uploader or admin/superadmin
+
   const me = req.user;
   const isUploader = file.uploadedBy && file.uploadedBy._id.toString() === me.id;
   const isAdmin = me.role === "admin" || me.role === "superadmin";
@@ -403,7 +395,7 @@ const deleteFile = asyncHandler(async (req, res) => {
     throw new Error("Not authorized to delete this file");
   }
 
-  // delete physical file if exists
+
   const absolutePath = path.isAbsolute(file.filePath)
     ? file.filePath
     : path.join(process.cwd(), file.filePath);
@@ -413,17 +405,17 @@ const deleteFile = asyncHandler(async (req, res) => {
       fs.unlinkSync(absolutePath);
     }
   } catch (err) {
-    // don't block delete if unlink fails for some reason; still attempt DB delete
+    
     console.warn("Failed to unlink file:", err.message || err);
   }
 
-  // delete DB record
+
   await file.deleteOne();
 
   res.json({ message: "File deleted successfully" });
 });
 
-/* ------------------- EXPORTS ------------------- */
+
 module.exports = {
   registerUser,
   loginUser,

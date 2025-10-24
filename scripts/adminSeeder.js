@@ -1,7 +1,7 @@
-// server/scripts/adminSeeder.js
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv').config();
-const User = require('../models/userModel'); // ✅ match filename
+const User = require('../models/userModel'); 
 
 async function seedSuperAdmin() {
     const superAdminEmail = 'superadmin@gmail.com';
@@ -18,7 +18,7 @@ async function seedSuperAdmin() {
             return;
         }
 
-        // ⚠️ Pass plain password, schema pre('save') will hash it
+        
         await User.create({
             name: superAdminName,
             email: superAdminEmail,

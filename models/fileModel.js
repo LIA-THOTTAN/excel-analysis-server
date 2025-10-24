@@ -17,11 +17,11 @@ const fileSchema = new mongoose.Schema(
     },
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Links to User collection
+      ref: "User", 
       required: true,
     },
   },
-  { timestamps: true } // createdAt, updatedAt
+  { timestamps: true } 
 );
 
 module.exports = mongoose.model("File", fileSchema);

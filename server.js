@@ -11,17 +11,17 @@ connectDB();
 
 const app = express();
 
-// ✅ Allow multiple trusted origins dynamically
+
 const allowedOrigins = [
   "https://excel-analysis-client.vercel.app",
   "https://excel-analysis-client-syls-8o09ubmyj-lia-thottan-s-projects.vercel.app",
-  "http://localhost:5173", // for local dev
+  "http://localhost:5173", 
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl)
+      
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
@@ -37,13 +37,12 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// ✅ Serve uploaded files
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ✅ API routes
 app.use('/api/users', require('./routes/userRoutes'));
 
-// ✅ Error handler middleware
+
 app.use(errorHandler);
 
 app.listen(port, () => console.log(`✅ Server running on port ${port}`));
